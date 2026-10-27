@@ -81,6 +81,7 @@ Solve the Turnstile challenge on a Playwright **async** `Page`. Returns the toke
 - `proxy` — optional proxy passed to Peak, e.g. `http://user:pass@ip:port`. Use the same egress IP as your browser so the token matches the session.
 - `sitekey` — override the sitekey instead of reading it from the DOM.
 - `timeout` — seconds to wait for Peak.
+- `app_id` — optional Peak app ID. Falls back to the `PEAK_APP_ID` env var. Earns you a share of each solve — see [Earn with your app ID](#earn-with-your-app-id).
 
 ### `solve_turnstile_sync(page, ...)`
 
@@ -102,6 +103,16 @@ with sync_playwright() as p:
 3. Injects the returned token into every `cf-turnstile-response` field (creating a hidden input if the widget has not yet) and invokes the widget's `data-callback`, so your form submit or navigation proceeds.
 
 Peak also supports the Cloudflare 5s challenge (`task_type: "cloudflare5stask"`); this package focuses on Turnstile.
+
+## Earn with your app ID
+
+Pass `app_id="app_your_id"` (or set the `PEAK_APP_ID` environment variable) to earn 5% of every solve routed through this package, paid as Peak solve credit. It is optional and does not change whether a solve succeeds or how fast it returns.
+
+```python
+await solve_turnstile(page, app_id="app_your_id")   # or: export PEAK_APP_ID=app_your_id
+```
+
+Create an app id at [peak.fo/dashboard/developer](https://peak.fo/dashboard/developer); details at [peak.fo/earn](https://peak.fo/earn).
 
 ## Legitimate use
 

@@ -89,6 +89,7 @@ async def solve_turnstile(
     proxy: str | None = None,
     sitekey: str | None = None,
     timeout: float = 180.0,
+    app_id: str | None = None,
 ) -> str:
     """Solve the Cloudflare Turnstile challenge on ``page`` via Peak.
 
@@ -127,6 +128,7 @@ async def solve_turnstile(
         api_key=api_key,
         proxy=proxy,
         timeout=timeout,
+        app_id=app_id,
     )
 
     await page.evaluate(_INJECT_TOKEN_JS, token)
@@ -139,6 +141,7 @@ def solve_turnstile_sync(
     proxy: str | None = None,
     sitekey: str | None = None,
     timeout: float = 180.0,
+    app_id: str | None = None,
 ) -> str:
     """Blocking convenience wrapper around Turnstile solving for the sync API.
 
@@ -159,6 +162,7 @@ def solve_turnstile_sync(
         api_key=api_key,
         proxy=proxy,
         timeout=timeout,
+        app_id=app_id,
     )
     page.evaluate(_INJECT_TOKEN_JS, token)
     return token

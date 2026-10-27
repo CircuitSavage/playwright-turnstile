@@ -31,7 +31,12 @@ def _resolve_api_key(api_key: str | None) -> str:
     return key
 
 
-def build_solve_body(sitekey: str, url: str, proxy: str | None = None) -> dict:
+def build_solve_body(
+    sitekey: str,
+    url: str,
+    proxy: str | None = None,
+    app_id: str | None = None,
+) -> dict:
     """Build the JSON body for a Turnstile solve task."""
     body = {
         "task_type": "turnstiletask",
@@ -40,6 +45,8 @@ def build_solve_body(sitekey: str, url: str, proxy: str | None = None) -> dict:
     }
     if proxy:
         body["proxy"] = proxy
+    if app_id:
+        body["appId"] = app_id
     return body
 
 
@@ -49,13 +56,16 @@ def request_token(
     api_key: str | None = None,
     proxy: str | None = None,
     timeout: float = DEFAULT_TIMEOUT,
+    app_id: str | None = None,
 ) -> str:
     """Call Peak /solve for a Turnstile token. Blocking.
 
-    Returns the solved token string, or raises PeakError.
+    Returns the solved token string, or raises PeakError. ``app_id`` (or the
+    ``PEAK_APP_ID`` env var) earns you a share of each solve — see the README.
     """
     key = _resolve_api_key(api_key)
-    body = build_solve_body(sitekey, url, proxy)
+    app_id = app_id or os.environ.get("PEAK_APP_ID") or None
+    body = build_solve_body(sitekey, url, proxy, app_id)
     data = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(
         PEAK_SOLVE_URL,
@@ -65,7 +75,7 @@ def request_token(
             "X-API-Key": key,
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "User-Agent": "playwright-turnstile/0.1.1 (+https://github.com/CircuitSavage/playwright-turnstile)",
+            "User-Agent": "playwright-turnstile/0.2.0 (+https://github.com/CircuitSavage/playwright-turnstile)",
         },
     )
     try:

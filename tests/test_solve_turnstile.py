@@ -88,6 +88,21 @@ class SolveBodyTests(unittest.TestCase):
         body = build_solve_body(SAMPLE_SITEKEY, SAMPLE_URL, proxy="http://u:p@1.2.3.4:8000")
         self.assertEqual(body["proxy"], "http://u:p@1.2.3.4:8000")
 
+    def test_body_omits_app_id_when_absent(self):
+        body = build_solve_body(SAMPLE_SITEKEY, SAMPLE_URL)
+        self.assertNotIn("appId", body)
+
+    def test_body_includes_app_id_when_given(self):
+        body = build_solve_body(SAMPLE_SITEKEY, SAMPLE_URL, app_id="app_abc123")
+        self.assertEqual(body["appId"], "app_abc123")
+
+    def test_request_token_reads_app_id_from_env(self):
+        captured = {}
+        with mock.patch.dict(os.environ, {"PEAK_API_KEY": "pk_x", "PEAK_APP_ID": "app_env"}), \
+                mock.patch.object(_peak.urllib.request, "urlopen", make_urlopen(captured)):
+            _peak.request_token(SAMPLE_SITEKEY, SAMPLE_URL)
+        self.assertEqual(captured["body"].get("appId"), "app_env")
+
 
 class SolveTurnstileTests(unittest.IsolatedAsyncioTestCase):
     async def test_reads_sitekey_calls_peak_and_injects_token(self):
